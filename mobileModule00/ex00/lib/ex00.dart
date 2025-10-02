@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Ex00Page extends StatefulWidget {
-  const Ex00Page();
+  const Ex00Page({super.key});
 
   @override
   State<Ex00Page> createState() => _Ex00PageState();

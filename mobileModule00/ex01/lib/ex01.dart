@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class Ex00Page extends StatefulWidget {
-  const Ex00Page();
+  const Ex00Page({super.key});
 
   @override
   State<Ex00Page> createState() => _Ex00PageState();
 }
 
 class _Ex00PageState extends State<Ex00Page> {
+  var _isHelloWorld = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,10 +18,13 @@ class _Ex00PageState extends State<Ex00Page> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("A Simple Text"),
-              TextButton(
+              _isHelloWorld ? Text("Hello World") : Text("A Simple Text"),
+              ElevatedButton(
                 onPressed: () {
-                  debugPrint("Button pressed");
+                  setState(() {
+                    _isHelloWorld = !_isHelloWorld;
+                  });
+                  debugPrint("Button pressed $_isHelloWorld");
                 },
                 child: Text("Click me"),
               ),
