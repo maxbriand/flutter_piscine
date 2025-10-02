@@ -29,33 +29,50 @@ class Ex02PageState extends State<Ex02Page> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Calculator", style: TextStyle(color: Colors.white)),
+                    Text(
+                      "Calculator",
+                      style: TextStyle(color: Colors.white, fontSize: 25),
+                    ),
                   ],
                 ),
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 5,
               child: Container(
                 color: Color(0xFF37474F),
                 alignment: Alignment.centerRight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(_operation), 
-                    Text(_result)
-                    
-                  ]),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    spacing: 10,
+                    children: [
+                      Text(
+                        _operation,
+                        style: TextStyle(
+                          color: Color(0xFF607D8B),
+                          fontSize: 30,
+                        ),
+                      ),
+                      Text(
+                        _result,
+                        style: TextStyle(
+                          color: Color(0xFF607D8B),
+                          fontSize: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: 4,
               child: Container(
                 color: Color(0xFF607D8B),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  textBaseline: TextBaseline.ideographic,
-                  spacing: 10, 
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     CalculatorRow(line: _keysL1),
                     CalculatorRow(line: _keysL2),
@@ -77,14 +94,35 @@ class CalculatorRow extends StatelessWidget {
 
   const CalculatorRow({super.key, required this.line});
 
+// have to fix the text color and it's done
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        for (final button in line)
-          ElevatedButton(onPressed: () {}, child: Text(button)),
-      ],
+    return Expanded(
+      flex: 1,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (int i = 0; i < line.length; i++)
+            Expanded(
+              flex: 1,
+              child: TextButton(
+                onPressed: () {
+                  debugPrint("button pressed: ${line[i]} (index: $i)");
+                },
+                child: Text(
+                  line[i],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF37474F),
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
