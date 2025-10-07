@@ -16,10 +16,20 @@ class CalculatorAppPageState extends State<CalculatorAppPage> {
   final _keysL3 = ["1", "2", "3", "x", "/"];
   final _keysL4 = ["0", ".", "00", "="];
 
-  void _clear(String key) {
+  void _clear() {
+    setState(() {
+      if (_operation.length == 1) {
+        _operation = "0";
+      } else {
+        _operation = _operation.substring(0, _operation.length - 1);
+      }
+    });
+  }
+
+  void _allclear() {
     setState(() {
       _operation = "0";
-      if (key == "AC") _result = "0";
+      _result = "0";
     });
   }
 
@@ -114,24 +124,28 @@ class CalculatorAppPageState extends State<CalculatorAppPage> {
                       buildOperation: _buildOperation,
                       calculate: _calculate,
                       clear: _clear,
+                      allClear: _allclear,
                     ),
                     CalculatorRow(
                       line: _keysL2,
                       buildOperation: _buildOperation,
                       calculate: _calculate,
                       clear: _clear,
+                      allClear: _allclear,
                     ),
                     CalculatorRow(
                       line: _keysL3,
                       buildOperation: _buildOperation,
                       calculate: _calculate,
                       clear: _clear,
+                      allClear: _allclear,
                     ),
                     CalculatorRow(
                       line: _keysL4,
                       buildOperation: _buildOperation,
                       calculate: _calculate,
                       clear: _clear,
+                      allClear: _allclear,
                     ),
                   ],
                 ),
@@ -148,7 +162,8 @@ class CalculatorRow extends StatelessWidget {
   final List<String> line;
   final void Function(String) buildOperation;
   final void Function() calculate;
-  final void Function(String) clear;
+  final void Function() clear;
+  final void Function() allClear;
 
   const CalculatorRow({
     super.key,
@@ -156,6 +171,7 @@ class CalculatorRow extends StatelessWidget {
     required this.buildOperation,
     required this.calculate,
     required this.clear,
+    required this.allClear,
   });
 
   @override
@@ -175,8 +191,10 @@ class CalculatorRow extends StatelessWidget {
                 onPressed: () {
                   debugPrint("button pressed: ${line[i]}");
                   switch (line[i]) {
-                    case "C" || "AC":
-                      clear(line[i]);
+                    case "AC":
+                      allClear();
+                    case "C":
+                      clear();
                     case "=":
                       calculate();
                     case _:
