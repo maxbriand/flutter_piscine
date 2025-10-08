@@ -10,24 +10,45 @@ class WeatherAppPage extends StatefulWidget {
 }
 
 class _WeatherAppPageState extends State<WeatherAppPage> {
+  var _currentIndex = 0;
+
+  void _onTapItem(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF5B5D72),
-        title: Text(widget.title),
+        title: Row(
+          children: [
+            TextField(),
+            IconButton(onPressed: () {}, icon: Icon(Icons.today_sharp),),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.pentagon_outlined), label: "dd"),
-          BottomNavigationBarItem(icon: Icon(Icons.today_sharp), label: "dsd"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "dssd"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pentagon_outlined),
+            label: "Currently",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.today_sharp),
+            label: "Today",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: "Weekly",
+          ),
         ],
-        onTap: (index) {},
+        onTap: _onTapItem,
       ),
-
-      body: Text("jd"),
+      body: Center(child: Text("Hello, world!", style: TextStyle(fontSize: 20),)),
     );
   }
 }
