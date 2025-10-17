@@ -1,4 +1,6 @@
 import "package:flutter/material.dart";
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 
 class WeatherAppPage extends StatefulWidget {
   const WeatherAppPage({super.key, required this.title});
@@ -11,7 +13,44 @@ class WeatherAppPage extends StatefulWidget {
 
 class _WeatherAppPageState extends State<WeatherAppPage> {
   var _currentIndex = 0;
+  String pos = "";
   String _location = "";
+
+  Future<void> _getPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+    }
+  }
+
+  Future<Position> _getPosition() async {
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: locationSettings,
+    );
+    return position;
+  }
 
   void _onTapItem(int index) {
     setState(() {
@@ -44,7 +83,8 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
           },
           Text(
             location,
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
           ),
         ],
       ),
@@ -86,9 +126,19 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
                   ),
                   SizedBox(width: 8),
                   IconButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      try {
+                        debugPrint("Getting permission...");
+                        await _getPermission();
+                        debugPrint("Permission granted, getting position...");
+                        Position position = await _getPosition();
+                        debugPrint("Position result: ${position.latitude}, ${position.longitude}");
+                        pos = '(${position.latitude}, ${position.longitude})';
+                      } catch (e) {
+                        pos = "Geolocation is not available, please enable it in your App settings $e";
+                      }
                       setState(() {
-                        _location = "Geolocation";
+                        _location = pos;
                       });
                     },
                     icon: Icon(Icons.egg_alt, color: Colors.white),
