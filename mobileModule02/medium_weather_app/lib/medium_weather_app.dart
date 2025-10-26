@@ -1,11 +1,30 @@
 import "package:flutter/material.dart";
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+
+class City {
+  String city;
+  String region;
+  String country;
+  double temperature;
+  String weatherDescription;
+  double windSpeed;
+
+  City({
+    this.city = "Unknown city",
+    this.region = "Unknown region",
+    this.country = "Unknown country",
+    this.temperature = 0.0,
+    this.weatherDescription = "Unknown weather",
+    this.windSpeed = 0.0,
+  });
+}
 
 class WeatherAppPage extends StatefulWidget {
-  const WeatherAppPage({super.key, required this.title});
-
   final String title;
+
+  const WeatherAppPage({super.key, required this.title});
 
   @override
   State<WeatherAppPage> createState() => _WeatherAppPageState();
@@ -15,6 +34,15 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
   var _currentIndex = 0;
   String pos = "";
   String _location = "";
+  final controller = TextEditingController();
+  City paris = City(
+    city: "paris",
+    region: "ile de france",
+    country: "france",
+    temperature: 45.1,
+    weatherDescription: "Cloudy",
+    windSpeed: 2.0,
+  );
 
   Future<void> _getPermission() async {
     bool serviceEnabled;
@@ -91,6 +119,14 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
     );
   }
 
+  Future<String> fetchWeatherDatas(String input) async {
+    var response = http.get(
+      Uri.parse('https://geocoding-api.open-meteo.com/v1/search?name=$input'),
+    );
+    var rps = await response;
+    return rps.body;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,21 +143,39 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Search location...',
-                        labelStyle: TextStyle(color: Colors.white),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        prefixIcon: Icon(Icons.search, color: Colors.white),
+                    child: TypeAheadField<City>(
+                      controller: ScrollController(),
+                      itemBuilder: (context, s) => ListTile(
+                        title: Text(s.city),
+                        subtitle: Text(s.region),
                       ),
-                      onSubmitted: (value) {
-                        setState(() {
-                          _location = value;
-                        });
-                      },
+                      suggestionsCallback: (query) async => [paris],
+                      onSelected: (s) => controller.text = s.city,
+                      builder: (context, textCtrl, focusNode) => TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          labelText: 'Search location...',
+                          labelStyle: TextStyle(color: Colors.white),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          prefixIcon: Icon(Icons.search, color: Colors.white),
+                        ),
+                        onChanged: (value) async {
+                          debugPrint(value);
+                          String result = await fetchWeatherDatas(value);
+                          debugPrint("jcdsj $result");
+                        },
+                        onSubmitted: (value) {
+                          setState(() {
+                            _location = value;
+                          });
+                        },
+                      ),
+                      debounceDuration: const Duration(milliseconds: 300),
                     ),
                   ),
                   SizedBox(width: 8),
@@ -132,10 +186,13 @@ class _WeatherAppPageState extends State<WeatherAppPage> {
                         await _getPermission();
                         debugPrint("Permission granted, getting position...");
                         Position position = await _getPosition();
-                        debugPrint("Position result: ${position.latitude}, ${position.longitude}");
+                        debugPrint(
+                          "Position result: ${position.latitude}, ${position.longitude}",
+                        );
                         pos = '(${position.latitude}, ${position.longitude})';
                       } catch (e) {
-                        pos = "Geolocation is not available, please enable it in your App settings $e";
+                        pos =
+                            "Geolocation is not available, please enable it in your App settings $e";
                       }
                       setState(() {
                         _location = pos;
